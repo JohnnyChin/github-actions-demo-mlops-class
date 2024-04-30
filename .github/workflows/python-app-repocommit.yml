@@ -1,0 +1,63 @@
+name: Python application with artifact and repo commit
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.8
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run the script
+      run: |
+        python model.py
+
+    # Generation of sample export file
+    - name: Generate File
+      run: echo "This is a sample file." > sample.txt
+
+    # Upload of artifact
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: exported-files
+        path: sample.txt
+
+    # Commit of export file to repo
+    - name: Commit files
+      id: commit
+      run: |
+        git config --local user.email "wansengchin@gmail.com"
+        git config --local user.name "JohnnyChin"
+        git add --all
+        if [-z "$(git status --porcelain)"]; then
+          echo "::set-output name=push::false"
+        else
+          git commit -m "Add changes" -a
+          echo "::set-output name=push::true"
+        fi
+      shell: bash
+    - name: Push changes
+      if: steps.commit.outputs.push == 'true'
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    # Removal of sample export file
+    - name: Delete File
+      run: |
+        if [ -z "sample.txt" ]; then
+          rm sample.txt
+        fi
