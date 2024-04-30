@@ -1,0 +1,42 @@
+name: Python application with artifact
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.8
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run the script
+      run: |
+        python model.py
+
+    # Generation of sample export file
+    - name: Generate File
+      run: echo "This is a sample file." > sample.txt
+
+    # Upload of artifact
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: exported-files
+        path: sample.txt
+
+    # Removal of sample export file
+    - name: Delete File
+      run: |
+        if [ -z "sample.txt" ]; then
+          rm sample.txt
