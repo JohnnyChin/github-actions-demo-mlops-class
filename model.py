@@ -20,6 +20,7 @@ def main():
     # Predict and calculate accuracy
     predictions = model.predict(X_test)
     accuracy = accuracy_score(y_test, predictions)
+    print("Model Result: ")
     print(f"Accuracy: {accuracy:.2f}")
 
 if __name__ == "__main__":

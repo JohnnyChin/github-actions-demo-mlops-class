@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Setting up runner
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
@@ -20,27 +21,26 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    
+    # Running model which outputs to a file in runner filesystem called "modelresult.txt"
     - name: Run the script
       run: |
-        python model.py
+        python model.py | tee modelresult.txt
 
-  artifact-generation-and-upload:
-    runs-on: ubuntu-latest
 
-    steps:
-    # Generation of sample export file
-    - name: Generate File
+    # Renaming of output file
+    - name: Rename output file
       run: |
-        timestamp=$(date +"%Y%m%d_%H%M%S")
-        filename="myfile_${timestamp}.txt"
-        echo "This is a sample file." > ${filename}
+        TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+        FILENAME="modelresult_${TIMESTAMP}.txt"
+        mv modelresult.txt ${FILENAME}
 
     # Upload of artifact
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: "exported_${filename}"
-        path: ${filename}
+        name: "exported_${FILENAME}"
+        path: ${FILENAME}
 
     # Commit of export file to repo
     - name: Commit files
@@ -52,10 +52,12 @@ jobs:
         if [[ -z "$(git status --porcelain)" ]]; then
           echo "::set-output name=push::false"
         else
-          git commit -m "Add changes" -a
+          git commit -m "Export model result at timestamp ${TIMESTAMP}" -a
           echo "::set-output name=push::true"
         fi
       shell: bash
+
+    # Push of export file to repo
     - name: Push changes
       if: steps.commit.outputs.push == 'true'
       uses: ad-m/github-push-action@master
@@ -63,12 +65,8 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         branch: ${{ github.head_ref }}
 
-  cleanup:
-    runs-on: ubuntu-latest
-
-    steps:
-    # Removal of sample export file
-    - name: Delete Artifact
+    # Cleanup
+    - name: Delete Artifact or Cleanup
       run: |
         if [[ -z "sample.txt" ]]; then
           rm sample.txt
