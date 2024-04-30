@@ -61,13 +61,13 @@ jobs:
         fi
       shell: bash
 
-    # Push of export file to repo
+    # Push of export file to repo (only push to trigger-branch always)
     - name: Push changes
       if: steps.commit.outputs.push == 'true'
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.head_ref }}
+        branch: trigger-branch
 
     # Cleanup
     - name: Delete Artifact or Cleanup
