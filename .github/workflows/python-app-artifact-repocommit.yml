@@ -21,19 +21,21 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    
+
+    # Set timestamp env variable
+    - name: Set timestamp env variable
+      run: |
+        echo "TIMESTAMP=$(date +"%Y%m%d_%H%M%S")" >> $GITHUB_ENV
+
+    # Set filename env variable
+    - name: Set filename env variable
+      run: |
+        echo "FILENAME=modelresult_${TIMESTAMP}.txt" >> $GITHUB_ENV
+
     # Running model which outputs to a file in runner filesystem called "modelresult.txt"
     - name: Run the script
       run: |
-        python model.py | tee modelresult.txt
-
-
-    # Renaming of output file
-    - name: Rename output file
-      run: |
-        TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-        FILENAME="modelresult_${TIMESTAMP}.txt"
-        mv modelresult.txt ${FILENAME}
+        python model.py | tee ${FILENAME}
 
     # Upload of artifact
     - name: Upload Artifact
@@ -52,7 +54,7 @@ jobs:
         if [[ -z "$(git status --porcelain)" ]]; then
           echo "::set-output name=push::false"
         else
-          git commit -m "Export model result at timestamp ${TIMESTAMP}" -a
+          git commit -m "Export model result to ${FILENAME}" -a
           echo "::set-output name=push::true"
         fi
       shell: bash
