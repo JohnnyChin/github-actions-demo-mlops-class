@@ -1,8 +1,10 @@
-name: Python application with artifact and repo commit
+name: Model training + Artifact Upload + Result Commit to Repo
 
 on:
-  pull_request:
-    branches: [ master ]
+  push:
+    branches: [ trigger-branch ]
+    paths:
+      - 'editme-to-trigger.txt' 
 
 jobs:
   build:
