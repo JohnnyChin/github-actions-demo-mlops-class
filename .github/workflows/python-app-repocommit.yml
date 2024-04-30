@@ -3,8 +3,8 @@ name: Python application with artifact and repo commit
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  # pull_request:
+  #   branches: [ master ]
 
 jobs:
   build:
@@ -26,6 +26,10 @@ jobs:
       run: |
         python model.py
 
+  artifact-generation-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
     # Generation of sample export file
     - name: Generate File
       run: |
@@ -37,8 +41,8 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: exported-files
-        path: sample.txt
+        name: "exported_${filename}"
+        path: ${filename}
 
     # Commit of export file to repo
     - name: Commit files
@@ -61,8 +65,12 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         branch: ${{ github.head_ref }}
 
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
     # Removal of sample export file
-    - name: Delete File
+    - name: Delete Artifact
       run: |
         if [[ -z "sample.txt" ]]; then
           rm sample.txt
