@@ -28,7 +28,10 @@ jobs:
 
     # Generation of sample export file
     - name: Generate File
-      run: echo "This is a sample file." > sample.txt
+      run: |
+        timestamp=$(date +"%Y%m%d_%H%M%S")
+        filename="myfile_${timestamp}.txt"
+        echo "This is a sample file." > ${filename}
 
     # Upload of artifact
     - name: Upload Artifact
@@ -44,7 +47,7 @@ jobs:
         git config --local user.email "wansengchin@gmail.com"
         git config --local user.name "JohnnyChin"
         git add --all
-        if [-z "$(git status --porcelain)"]; then
+        if [[ -z "$(git status --porcelain)" ]]; then
           echo "::set-output name=push::false"
         else
           git commit -m "Add changes" -a
@@ -61,6 +64,6 @@ jobs:
     # Removal of sample export file
     - name: Delete File
       run: |
-        if [ -z "sample.txt" ]; then
+        if [[ -z "sample.txt" ]]; then
           rm sample.txt
         fi
