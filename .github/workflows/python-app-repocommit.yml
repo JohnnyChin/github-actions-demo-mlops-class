@@ -54,6 +54,7 @@ jobs:
       uses: ad-m/github-push-action@repo-commit
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.head_ref }}
 
     # Removal of sample export file
     - name: Delete File
