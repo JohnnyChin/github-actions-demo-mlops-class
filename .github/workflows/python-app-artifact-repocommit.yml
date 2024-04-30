@@ -41,8 +41,8 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: "exported_${FILENAME}"
-        path: ${FILENAME}
+        name: exported_${{ env.FILENAME }}
+        path: ${{ env.FILENAME }}
 
     # Commit of export file to repo
     - name: Commit files
