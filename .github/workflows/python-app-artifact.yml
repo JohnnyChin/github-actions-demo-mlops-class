@@ -40,3 +40,4 @@ jobs:
       run: |
         if [ -z "sample.txt" ]; then
           rm sample.txt
+        fi
